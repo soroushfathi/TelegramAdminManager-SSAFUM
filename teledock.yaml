@@ -1,0 +1,16 @@
+kind: ExternalService
+name: ssafum-admin
+spec:
+  image: ssafum-admin:v1.2
+  image_pull_policy: Always
+  replicas: 1
+  command:
+    - python
+    - ssafumadmin.py
+  command_args:
+    - +989939996761
+  env:
+    - name: SSAFUM_apiID
+      value: ${SSAFUM_apiID}
+    - name: SSAFUM_apiHASH
+      value: ${SSAFUM_apiHASH}

@@ -1,0 +1,5 @@
+telethon
+requests
+cryptg
+bs4
+cryptography
