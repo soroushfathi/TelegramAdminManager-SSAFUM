@@ -16,8 +16,6 @@ from telethon.tl.types import (
     PeerChat,
 )
 
-# todo send doc
-# todo send edited message
 api_id = os.environ["SSAFUM_apiID"]
 api_hash = os.environ["SSAFUM_apiHASH"]
 client = TelegramClient('main', api_id, api_hash)
@@ -140,8 +138,26 @@ async def commands(event):
 
 
 # check post thar has not contain a given keywords and from channel that have added
-@client.on(events.NewMessage)
+@client.on(events.NewMessage(forwards=False))
 async def post_analyser(event):
+    try:
+        ch = PeerChannel((await event.message.get_sender()).id)
+        ch = await client.get_entity(ch)
+        keyflag = True
+        for i in keywords:
+            if i in event.raw_text:
+                keyflag = False
+                break
+        if not re.findall(r'(?i)ssafum', event.raw_text):
+            keyflag = False
+        if ch.id in [item[0] for item in channels] and keyflag:
+            await client.forward_messages(main_group['id'], event.message)
+    except ValueError:
+        pass
+
+
+@client.on(events.MessageEdited(forwards=False))
+async def edited_post_anylser(event):
     try:
         ch = PeerChannel((await event.message.get_sender()).id)
         ch = await client.get_entity(ch)
