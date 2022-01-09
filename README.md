@@ -1,4 +1,4 @@
-# Admin Manager -Telegram App 
+# Admin Management
 A telegram app, that analysis post from Student Scientific Association channels 
 and after getting approval from admins forward it to main channel 🤠
 admins work with these commands:
