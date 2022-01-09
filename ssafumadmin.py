@@ -30,7 +30,7 @@ main_group = {
     'id': 1751972489,
     'title': 'SSA FUM Admins',
 }
-keywords = []
+keywords = []  # keywords: if the post include added keywords, won't be sent to the admins group
 
 
 @client.on(events.NewMessage)
@@ -94,7 +94,6 @@ async def commands(event):
                         except TypeError:
                             res += '❌ترک کانال {}ام: ناموفق(برای ورودی فقط آدرس کانال را وارد کنید)\n'.format(i + 1)
                 await event.reply(res)
-            # keywords: if the post include added keywords, won't be sent to the admins group
             elif re.findall(r'(?i)add[ ]*keyword[s]$', event.raw_text):
                 for kw in strs[:len(strs) - 1]:
                     keywords.append(kw)
@@ -137,27 +136,18 @@ async def commands(event):
                           '🚫شما در این محدوده مجاز به استفاده از دستورات نمی باشید. با تشکر')
 
 
-# check post thar has not contain a given keywords and from channel that have added
 @client.on(events.NewMessage(forwards=False))
-async def post_analyser(event):
-    try:
-        ch = PeerChannel((await event.message.get_sender()).id)
-        ch = await client.get_entity(ch)
-        keyflag = True
-        for i in keywords:
-            if i in event.raw_text:
-                keyflag = False
-                break
-        if not re.findall(r'(?i)ssafum', event.raw_text):
-            keyflag = False
-        if ch.id in [item[0] for item in channels] and keyflag:
-            await client.forward_messages(main_group['id'], event.message)
-    except ValueError:
-        pass
+async def new_post(event):
+    post_analyser(event)
 
 
 @client.on(events.MessageEdited(forwards=False))
-async def edited_post_anylser(event):
+async def new_edited_post(event):
+    post_analyser(event)
+
+
+# check if post has not contain a given keywords and from channel that have been added
+def post_analyser(event):
     try:
         ch = PeerChannel((await event.message.get_sender()).id)
         ch = await client.get_entity(ch)
