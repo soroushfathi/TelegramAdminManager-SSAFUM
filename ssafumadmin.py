@@ -4,7 +4,11 @@ import sched
 import time
 from datetime import datetime, timezone, timedelta
 
-from telethon.errors.rpcerrorlist import MessageAuthorRequiredError, ChatIdInvalidError
+from telethon.errors.rpcerrorlist import(
+    MessageAuthorRequiredError,
+    ChatIdInvalidError,
+    MessageIdInvalidError,
+)
 from telethon import (
     TelegramClient,
     events,
@@ -138,16 +142,16 @@ async def commands(event):
 
 @client.on(events.NewMessage(forwards=False))
 async def new_post(event):
-    post_analyser(event)
+    await post_analyser(event)
 
 
 @client.on(events.MessageEdited(forwards=False))
 async def new_edited_post(event):
-    post_analyser(event)
+    await post_analyser(event)
 
 
 # check if post has not contain a given keywords and from channel that have been added
-def post_analyser(event):
+async def post_analyser(event):
     try:
         ch = PeerChannel((await event.message.get_sender()).id)
         ch = await client.get_entity(ch)
@@ -183,21 +187,26 @@ async def post_archives(event):
                 msg = await client.get_messages(chat, ids=event.reply_to_msg_id)
                 if await client.forward_messages(main_channel['id'], msg):
                     await event.reply('ارسال با موفقیت انجام شد📤')
-                    await client.edit_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
+                    # await client.edit_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
             else:
                 msg = await client.get_messages(chat, ids=event.reply_to_msg_id)
                 if await client.forward_messages(main_channel['id'], msg, schedule=timedelta(minutes=10 - int(minutes_diff))):
                     await event.reply('✔️پست {} دقیقه دیگر ارسال می شود 📤'.format(10 - int(minutes_diff)))
-                    await client.edit_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
+                    # await client.edit_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
         except MessageAuthorRequiredError:
+            pass
+        except MessageIdInvalidError:
             pass
     elif re.findall(r'(?i).*ignore$', event.raw_text) and chat.id == main_group['id']:
         try:
             msg = await client.get_messages(chat, ids=event.reply_to_msg_id)
             await event.reply('عدم تایید 🛑 حذف پست انجام شد🗑')
-            await client.edit_message(chat, msg, '❌این پست قبلا حذف گردیده است📫')
+            # await client.edit_message(chat, msg, '❌این پست قبلا حذف گردیده است📫')
         except MessageAuthorRequiredError:
             pass
+        except MessageIdInvalidError:
+            pass
+
 
 
 client.start()
