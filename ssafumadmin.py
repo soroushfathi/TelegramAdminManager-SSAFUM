@@ -150,6 +150,11 @@ async def new_edited_post(event):
     await post_analyser(event)
 
 
+@client.on(events.Album)
+async def new_album_post(event):
+    await post_analyser(event)
+
+
 # check if post has not contain a given keywords and from channel that have been added
 async def post_analyser(event):
     try:
@@ -188,11 +193,13 @@ async def post_archives(event):
                 if await client.forward_messages(main_channel['id'], msg):
                     await event.reply('ارسال با موفقیت انجام شد📤')
                     # await client.edit_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
+                    # await client.delete_messages(chat, msg)
             else:
                 msg = await client.get_messages(chat, ids=event.reply_to_msg_id)
                 if await client.forward_messages(main_channel['id'], msg, schedule=timedelta(minutes=10 - int(minutes_diff))):
                     await event.reply('✔️پست {} دقیقه دیگر ارسال می شود 📤'.format(10 - int(minutes_diff)))
-                    # await client.edit_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
+                    # await client.ediِt_message(chat, msg, '✔️این پست قبلا تایید گردیده است')
+                    # await client.delete_messages(chat, msg)
         except MessageAuthorRequiredError:
             pass
         except MessageIdInvalidError:
@@ -202,11 +209,11 @@ async def post_archives(event):
             msg = await client.get_messages(chat, ids=event.reply_to_msg_id)
             await event.reply('عدم تایید 🛑 حذف پست انجام شد🗑')
             # await client.edit_message(chat, msg, '❌این پست قبلا حذف گردیده است📫')
+            await client.delete_messages(chat, msg)
         except MessageAuthorRequiredError:
             pass
         except MessageIdInvalidError:
             pass
-
 
 
 client.start()
