@@ -1,7 +1,7 @@
 kind: ExternalService
 name: ssafum-bot
 spec:
-  image: ssafum-bot:v1.2
+  image: ssafum-bot:v1.4
   image_pull_policy: Always
   replicas: 1
   command:

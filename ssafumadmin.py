@@ -140,6 +140,12 @@ async def commands(event):
                           '🚫شما در این محدوده مجاز به استفاده از دستورات نمی باشید. با تشکر')
 
 
+@client.on(events.Album)
+async def new_album_post(event):
+    print(event)
+    await client.forward_messages(main_group['id'], event.messages)
+
+
 @client.on(events.NewMessage(forwards=False))
 async def new_post(event):
     await post_analyser(event)
@@ -147,11 +153,6 @@ async def new_post(event):
 
 @client.on(events.MessageEdited(forwards=False))
 async def new_edited_post(event):
-    await post_analyser(event)
-
-
-@client.on(events.Album)
-async def new_album_post(event):
     await post_analyser(event)
 
 
@@ -168,7 +169,7 @@ async def post_analyser(event):
         if not re.findall(r'(?i)ssafum', event.raw_text):
             keyflag = False
         if ch.id in [item[0] for item in channels] and keyflag:
-            await client.forward_messages(main_group['id'], event.message)
+            await client.forward_messages(main_group['id'], event.message, as_album=True)
     except ValueError:
         pass
 
@@ -179,6 +180,7 @@ async def post_archives(event):
     if re.findall(r'(?i).*accept$', event.raw_text) and chat.id == main_group['id']:
         # get the date of last message, if now - date < 10min --> send with schedule
         lastmsgs = []
+        channel = await client.get_entity('ssafum')
         async for item in client.iter_messages(main_channel['id'], scheduled=True):
             lastmsgs.append(item)
             break
